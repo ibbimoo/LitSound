@@ -1,10 +1,10 @@
 const BLOCKED_ARTIST_PATTERNS = [
-  /Taylor Swift/gi,
-  /BTS/gi,
-  /Billie Eilish/gi,
-  /IU/gi,
-  /Adele/gi,
-  /Radiohead/gi
+  /\bTaylor Swift\b/gi,
+  /\bBTS\b/gi,
+  /\bBillie Eilish\b/gi,
+  /\bIU\b/gi,
+  /\bAdele\b/gi,
+  /\bRadiohead\b/gi
 ];
 
 export type ArtistRewriteResult = {

@@ -27,4 +27,11 @@ describe("rewriteArtistImitation", () => {
     expect(result.rewrittenPrompt).toBe("slow chamber folk with muted strings");
     expect(result.wasRewritten).toBe(false);
   });
+
+  it("does not rewrite artist names inside ordinary words", () => {
+    const result = rewriteArtistImitation("Use medium book mood influence with piano.");
+
+    expect(result.rewrittenPrompt).toBe("Use medium book mood influence with piano.");
+    expect(result.wasRewritten).toBe(false);
+  });
 });
