@@ -65,25 +65,29 @@ This project is ready for Vercel with the default Next.js settings.
 
 ## Current MVP Scope
 
-The current version uses a mock music provider:
+By default, the app uses a mock music provider:
 
 ```txt
 public/audio/mock-track.wav
 ```
 
-For a production music-generation provider, implement the external provider contract in:
-
-```txt
-src/lib/generation/externalMusicProvider.ts
-```
-
-and configure:
+For real Kie.ai Suno generation, configure Vercel environment variables:
 
 ```txt
 MUSIC_PROVIDER_MODE=external
-MUSIC_PROVIDER_API_URL=...
-MUSIC_PROVIDER_API_KEY=...
+KIE_API_KEY=your_kie_api_key
+KIE_API_BASE_URL=https://api.kie.ai
+KIE_MODEL=V4
+KIE_CALLBACK_URL=https://lit-sound.vercel.app/api/generate/callback
 ```
+
+The app starts a Kie generation task, polls:
+
+```txt
+/api/v1/generate/record-info?taskId=...
+```
+
+and plays the returned `audioUrl` when generation is complete.
 
 ## Documentation
 

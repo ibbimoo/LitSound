@@ -56,3 +56,15 @@ export type GeneratedTrack = {
   sourceBookTitle: string;
   sourceAuthor: string;
 };
+
+export type GenerationJob = {
+  taskId: string;
+  status: "processing";
+};
+
+export type GenerationStatus = {
+  taskId: string;
+  status: "processing" | "complete" | "failed";
+  track?: GeneratedTrack;
+  error?: string;
+};

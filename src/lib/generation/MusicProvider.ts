@@ -1,4 +1,4 @@
-import type { GeneratedTrack } from "@/types/litsound";
+import type { GenerationJob, GenerationStatus } from "@/types/litsound";
 
 export type GenerateMusicInput = {
   prompt: string;
@@ -8,5 +8,6 @@ export type GenerateMusicInput = {
 };
 
 export type MusicProvider = {
-  generate(input: GenerateMusicInput): Promise<GeneratedTrack>;
+  start(input: GenerateMusicInput): Promise<GenerationJob>;
+  getStatus(taskId: string): Promise<GenerationStatus>;
 };

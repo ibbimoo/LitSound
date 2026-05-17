@@ -36,6 +36,7 @@ export default function HomePage() {
   const [track, setTrack] = useState<GeneratedTrack | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStatus, setGenerationStatus] = useState("");
   const [error, setError] = useState("");
 
   async function analyze() {
@@ -61,6 +62,7 @@ export default function HomePage() {
   async function generate(nextAdjustments = options.adjustments) {
     if (!analysis) return;
     setError("");
+    setGenerationStatus("");
     setIsGenerating(true);
     const response = await fetch("/api/generate", {
       method: "POST",
@@ -75,14 +77,49 @@ export default function HomePage() {
       })
     });
     const data = await response.json();
-    setIsGenerating(false);
 
     if (!response.ok) {
+      setIsGenerating(false);
       setError(data.error ?? "생성에 실패했습니다.");
       return;
     }
 
-    setTrack(data.track);
+    setGenerationStatus("음악 생성 작업을 시작했습니다.");
+    await pollGenerationStatus(data.taskId);
+  }
+
+  async function pollGenerationStatus(taskId: string) {
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      if (attempt > 0) {
+        await wait(5000);
+      }
+      setGenerationStatus(`음악 생성 중입니다. (${attempt + 1}/40)`);
+
+      const response = await fetch(`/api/generate/status?taskId=${encodeURIComponent(taskId)}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        setIsGenerating(false);
+        setError(data.error ?? "생성 상태 확인에 실패했습니다.");
+        return;
+      }
+
+      if (data.status === "failed") {
+        setIsGenerating(false);
+        setError(data.error ?? "음악 생성에 실패했습니다.");
+        return;
+      }
+
+      if (data.status === "complete" && data.track) {
+        setTrack(data.track);
+        setGenerationStatus("");
+        setIsGenerating(false);
+        return;
+      }
+    }
+
+    setIsGenerating(false);
+    setError("음악 생성 시간이 오래 걸리고 있습니다. 잠시 후 다시 시도해 주세요.");
   }
 
   return (
@@ -99,6 +136,7 @@ export default function HomePage() {
       <GenerationOptions options={options} onChange={setOptions} />
 
       {error ? <p className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+      {generationStatus ? <p className="rounded-lg border border-stone-300 bg-white p-3 text-sm text-stone-700">{generationStatus}</p> : null}
 
       {analysis ? (
         <AnalysisReview
@@ -130,4 +168,10 @@ export default function HomePage() {
       ) : null}
     </main>
   );
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }

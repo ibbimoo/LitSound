@@ -15,14 +15,14 @@ export async function POST(request: Request) {
     const body = GenerateRequestSchema.parse(await request.json());
     const safePrompt = rewriteArtistImitation(body.prompt).rewrittenPrompt;
     const provider = getMusicProvider();
-    const track = await provider.generate({
+    const job = await provider.start({
       prompt: safePrompt,
       sourceBookTitle: body.sourceBookTitle,
       sourceAuthor: body.sourceAuthor,
       durationSeconds: body.durationSeconds
     });
 
-    return NextResponse.json({ track });
+    return NextResponse.json(job);
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Invalid generation request." },
